@@ -77,6 +77,17 @@ def FAQinput():
     q = request.form.get("q")
     r = wikipedia.summary(q)
     return(render_template("FAQinput.html",r=r))
+
+@app.route("/Portfolio",methods=["POST","GET"])
+def Portfolio():
+    return(render_template("Portfolio.html"))
+
+@app.route("/Portfolio_result",methods=["POST","GET"])
+def Portfolio_result():
+    q = request.form.get('question')
+    print(q)
+    r = model.generate_content(q)
+    return(render_template("Portfolio_result.html",r=r.candidates[0].content.parts[0]))
  
 @app.route("/userLog",methods=["POST","GET"])
 def userLog():

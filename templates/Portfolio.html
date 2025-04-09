@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='styles.css')}}">
+    <title>Main</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to Main Menu</h2>
+        <p>Input your question - Gemini</p>
+        <form action="/Portfolio_result" method="POST">
+            <select name="question" style="width: 100%; max-width: 100%; height: auto; white-space: normal; word-wrap: break-word;">
+                <option value="disabled selecte">Select your question</option>
+                <option value="MPT">What is the Modern Portfolio Theory (MPT), and how does it help in constructing an optimal investment portfolio?</option>
+                <option value="efficient_frontier">What is the significance of the efficient frontier, and how can investors use it to balance risk and return?</option>
+                <option value="systematic_risk_and_unsystematic risk">How do systematic risk (market risk) and unsystematic risk (diversifiable risk) impact portfolio diversification?</option>
+                <option value="CAPM">What is the role of the Capital Asset Pricing Model (CAPM) in portfolio management, and how does it determine expected returns?</option>
+                <option value=" correlation_and_covariance">How do correlation and covariance between assets affect portfolio diversification and overall risk?</option>
+            </select>
+            <input type="submit" value="Submit">
+        </form>
+        <form action="/main" method="POST">
+            <input type="submit" value="Main">
+        </form>
+
+    </div>
+</body>
+</html>
