@@ -95,3 +95,14 @@ p {
         font-size: 16px;
     }
 }
+
+body.main-page {
+    align-items: flex-start;
+    min-height: auto;
+    height: auto;
+}
+
+body.main-page .container {
+    max-height: none;
+}
+
