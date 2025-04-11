@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Budget & Spending Risk</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; max-width: 700px; margin: auto; padding: 2rem; }
+        input, textarea { width: 100%; padding: 8px; margin-bottom: 1rem; }
+        .warning { color: red; font-weight: bold; }
+        .ai-box { background-color: #f5f5f5; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <h2>Smart Budget & AI Financial Advisor</h2>
+
+    <form method="POST">
+        <label>Monthly Income (comma-separated):</label>
+        <input type="text" name="income" placeholder="e.g. 5000,5100,5300" required>
+
+        <label>Monthly Expenses (comma-separated):</label>
+        <input type="text" name="expenses" placeholder="e.g. 4500,4700,4900" required>
+
+        <label>Monthly Saving Goal ($):</label>
+        <input type="number" name="savings" step="0.01" required>
+
+        <button type="submit">Analyze</button>
+    </form>
+
+    {% if warning %}
+        <p class="warning">{{ warning }}</p>
+    {% endif %}
+
+    {% if avg_saving_note %}
+        <p>{{ avg_saving_note|safe }}</p>
+    {% endif %}
+
+    {% if chart_data %}
+        <h3>Income vs Expenses</h3>
+        <canvas id="trendChart" width="600" height="300"></canvas>
+        <script>
+            const ctx = document.getElementById('trendChart');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [...Array({{ chart_data.expenses | length }}).keys()].map(i => 'Month ' + (i+1)),
+                    datasets: [
+                        {
+                            label: 'Expenses',
+                            data: {{ chart_data.expenses }},
+                            borderColor: 'red',
+                            fill: false
+                        },
+                        {
+                            label: 'Income',
+                            data: {{ chart_data.income }},
+                            borderColor: 'green',
+                            fill: false
+                        },
+                        {
+                            label: 'Target Saving',
+                            data: Array({{ chart_data.expenses | length }}).fill({{ chart_data.target_saving }}),
+                            borderColor: '#999',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                }
+            });
+        </script>
+    {% endif %}
+
+    {% if ai_response %}
+        <div class="ai-box">
+            <h3>💡 AI Suggestions</h3>
+            <p>{{ ai_response|safe }}</p>
+        </div>
+    {% endif %}
+</body>
+</html>

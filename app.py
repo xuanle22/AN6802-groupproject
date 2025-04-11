@@ -5,8 +5,10 @@ import google.generativeai as genai
 import os
 import wikipedia
 import time,requests
+import re
 
-api = os.getenv("makersuite")
+#api = os.getenv("makersuite")
+api = "AIzaSyADcro7sO2hb4GjMhEPKNtwQssUVvQOM0U"
 model = genai.GenerativeModel("gemini-1.5-flash")
 genai.configure(api_key=api)
 
@@ -124,6 +126,63 @@ def telegram():
                     requests.get(msg)
         time.sleep(8)
     return(render_template("main.html"))
+
+@app.route("/smart_budget", methods=["GET", "POST"])
+def smart_budget():
+    ai_response = ""
+    warning = ""
+    chart_data = {}
+    avg_saving_note = ""
+
+    if request.method == "POST":
+        income_raw = request.form.get("income", "")
+        expenses_raw = request.form.get("expenses", "")
+        savings = float(request.form.get("savings", 0))
+
+        try:
+            income_list = [float(x.strip()) for x in income_raw.split(",") if x.strip()]
+            expenses = [float(x.strip()) for x in expenses_raw.split(",") if x.strip()]
+        except ValueError:
+            return "Please enter only numbers separated by commas."
+
+        if len(income_list) != len(expenses):
+            return "Please make sure income and expenses have the same number of months."
+
+        if len(expenses) >= 2:
+            expense_increase = expenses[-1] - expenses[0]
+            income_increase = income_list[-1] - income_list[0]
+            if expense_increase > income_increase * 1.2:
+                warning = "⚠️ Your expenses are growing significantly faster than your income."
+
+        actual_saving = [inc - exp for inc, exp in zip(income_list, expenses)]
+        avg_actual = sum(actual_saving) / len(actual_saving)
+
+        if avg_actual < savings:
+            avg_saving_note = f"<span style='color:red;'>⚠️ Your average saving (${avg_actual:.2f}) is below your goal (${savings:.2f}).</span>"
+        else:
+            avg_saving_note = f"<span style='color:green;'>✅ Great! Your average saving (${avg_actual:.2f}) meets or exceeds your goal (${savings:.2f}).</span>"
+
+        prompt = f"""
+        Here is my financial summary over the past {len(expenses)} months:
+        Monthly income: {income_list}
+        Monthly expenses: {expenses}
+        My monthly savings goal is ${savings}.
+
+        Analyze my financial trends and give detailed advice on budgeting, saving, and avoiding financial risks.
+        """
+
+        response = model.generate_content(prompt)
+        ai_response = response.text
+
+        chart_data = {
+            "income": income_list,
+            "expenses": expenses,
+            "target_saving": savings
+        }
+
+    return render_template("smart_budget.html", ai_response=ai_response,
+                           warning=warning, chart_data=chart_data,
+                           avg_saving_note=avg_saving_note)
  
 @app.route("/userLog",methods=["POST","GET"])
 def userLog():
